@@ -10,7 +10,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   var jsonList = await FileReader.readCountriesList();
-  final List<Country> countries = Countries().getCountriesFromJsonList(jsonList);
+  final List<Country> countries = Countries().getCountriesFromJsonList(
+    jsonList,
+  );
   print('Loaded ${countries.length} countries');
   runApp(const MyApp());
 }
@@ -39,16 +41,15 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.yellow),
+        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Chuyển đổi tiền tệ'),
+      home: const MyHomePage(title: 'chuyển đổi tiền tệ'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -66,8 +67,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController inputAmountController = TextEditingController(text: '1');
-  final TextEditingController outputAmountController = TextEditingController(text: '23,000');
+  final TextEditingController inputAmountController = TextEditingController(
+    text: '1',
+  );
+  final TextEditingController outputAmountController = TextEditingController(
+    text: '23,000',
+  );
   String inputCurrency = 'USD';
   String outputCurrency = 'VND';
   String initialInputAmount = '1';
@@ -89,10 +94,19 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Center(child: Text(widget.title, style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer))),
+        title: Center(
+          child: Text(
+            widget.title,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: FileReader.getCurrencyData('https://ea0dc643-c905-4319-91a3-262f08ad520d.mock.pstmn.io/currency_rate'),
+        future: FileReader.getCurrencyData(
+          'https://ea0dc643-c905-4319-91a3-262f08ad520d.mock.pstmn.io/currency_rate',
+        ),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -105,21 +119,27 @@ class _MyHomePageState extends State<MyHomePage> {
           final currencyData = snapshot.data!;
           final currencies = Currencies();
           currencies.loadFromJson(currencyData);
-          CurrencyController().update(inputCurrency: 'USD', outputCurrency: 'VND', amount: '1', inputCountryCode: 'us', outputCountryCode: 'vn');
+          CurrencyController().update(
+            inputCurrency: 'USD',
+            outputCurrency: 'VND',
+            amount: '1',
+            inputCountryCode: 'us',
+            outputCountryCode: 'vn',
+          );
           outputAmountController.text = CurrencyController().outputAmount;
           return ListenableBuilder(
             listenable: CurrencyController(),
             builder: (context, child) {
-              
               return Center(
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: 32),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
+                        spacing: 32,
                         children: [
                           Container(
                             decoration: BoxDecoration(
@@ -128,32 +148,53 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset('assets/images/countries_flags/256x192/${CurrencyController().inputCountryCode.toLowerCase()}.png', width: 32),
+                                Image.asset(
+                                  'assets/images/countries_flags/256x192/${CurrencyController().inputCountryCode.toLowerCase()}.png',
+                                  width: 32,
+                                ),
                                 SizedBox(height: 8),
-                                ElevatedButton(onPressed: (){
-                                  showCurrencyChoiceDialog(context).then((resultTuple) {
-                                    if (resultTuple != null) {
-                                      CurrencyController().update(inputCurrency: resultTuple[1], inputCountryCode: resultTuple[0]);
-                                      outputAmountController.text = CurrencyController().outputAmount;
-                                    }
-                                  });
-                                }, child: Text(CurrencyController().inputCurrency)),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    showCurrencyChoiceDialog(context).then((
+                                      resultTuple,
+                                    ) {
+                                      if (resultTuple != null) {
+                                        CurrencyController().update(
+                                          inputCurrency: resultTuple[1],
+                                          inputCountryCode: resultTuple[0],
+                                        );
+                                        outputAmountController.text =
+                                            CurrencyController().outputAmount;
+                                      }
+                                    });
+                                  },
+                                  child: Text(
+                                    CurrencyController().inputCurrency,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          SizedBox(width: 16),
-                          ElevatedButton(onPressed: (){
-                            CurrencyController().update(
-                              inputCurrency: CurrencyController().outputCurrency,
-                              outputCurrency: CurrencyController().inputCurrency,
-                              inputCountryCode: CurrencyController().outputCountryCode,
-                              outputCountryCode: CurrencyController().inputCountryCode,
-                              amount: CurrencyController().outputAmount,
-                            );
-                            inputAmountController.text = CurrencyController().inputAmount;
-                            outputAmountController.text = CurrencyController().outputAmount;
-                          }, child: Icon(Icons.currency_exchange)),
-                          SizedBox(width: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              CurrencyController().update(
+                                inputCurrency:
+                                    CurrencyController().outputCurrency,
+                                outputCurrency:
+                                    CurrencyController().inputCurrency,
+                                inputCountryCode:
+                                    CurrencyController().outputCountryCode,
+                                outputCountryCode:
+                                    CurrencyController().inputCountryCode,
+                                amount: CurrencyController().outputAmount,
+                              );
+                              inputAmountController.text =
+                                  CurrencyController().inputAmount;
+                              outputAmountController.text =
+                                  CurrencyController().outputAmount;
+                            },
+                            child: Icon(Icons.currency_exchange),
+                          ),
                           Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
@@ -161,16 +202,30 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset('assets/images/countries_flags/256x192/${CurrencyController().outputCountryCode.toLowerCase()}.png', width: 32),
+                                Image.asset(
+                                  'assets/images/countries_flags/256x192/${CurrencyController().outputCountryCode.toLowerCase()}.png',
+                                  width: 32,
+                                ),
                                 SizedBox(height: 8),
-                                ElevatedButton(onPressed: (){
-                                  showCurrencyChoiceDialog(context).then((resultTuple) {
-                                    if (resultTuple != null) {
-                                      CurrencyController().update(outputCurrency: resultTuple[1], outputCountryCode: resultTuple[0]);
-                                      outputAmountController.text = CurrencyController().outputAmount;
-                                    }
-                                  });
-                                }, child: Text(CurrencyController().outputCurrency)),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    showCurrencyChoiceDialog(context).then((
+                                      resultTuple,
+                                    ) {
+                                      if (resultTuple != null) {
+                                        CurrencyController().update(
+                                          outputCurrency: resultTuple[1],
+                                          outputCountryCode: resultTuple[0],
+                                        );
+                                        outputAmountController.text =
+                                            CurrencyController().outputAmount;
+                                      }
+                                    });
+                                  },
+                                  child: Text(
+                                    CurrencyController().outputCurrency,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -187,60 +242,110 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ElevatedButton(onPressed: null, child: Text('${CurrencyController().inputAmount} ${CurrencyController().inputCurrency} = ${CurrencyController().outputAmount} ${CurrencyController().outputCurrency}')),
+                            ElevatedButton(
+                              onPressed: null,
+                              child: Text(
+                                '${CurrencyController().inputCurrencyRate} ${CurrencyController().inputCurrency} = ${CurrencyController().outputCurrencyRate} ${CurrencyController().outputCurrency}',
+                              ),
+                            ),
                             SizedBox(height: 32),
                             TextFormField(
                               controller: inputAmountController,
                               //initialValue: initialInputAmount,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                labelText: 'Số tiền (${CurrencyController().inputCurrency})',
-                                border: OutlineInputBorder(),
+                                labelText:
+                                    'Số tiền (${CurrencyController().inputCurrency})',
+                                //border: OutlineInputBorder(),
                                 suffixText: CurrencyController().inputCurrency,
                               ),
                               onFieldSubmitted: (value) {
                                 CurrencyController().update(amount: value);
-                                outputAmountController.text = CurrencyController().outputAmount;
+                                outputAmountController.text =
+                                    CurrencyController().outputAmount;
                               },
                               onChanged: (value) {
                                 CurrencyController().update(amount: value);
-                                outputAmountController.text = CurrencyController().outputAmount;
+                                outputAmountController.text =
+                                    CurrencyController().outputAmount;
                               },
                             ),
                             SizedBox(height: 16),
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              child: Icon(Icons.arrow_downward),
+                            IconButton(
+                              onPressed: () {
+                                CurrencyController().update(
+                                  inputCurrency:
+                                      CurrencyController().outputCurrency,
+                                  outputCurrency:
+                                      CurrencyController().inputCurrency,
+                                  inputCountryCode:
+                                      CurrencyController().outputCountryCode,
+                                  outputCountryCode:
+                                      CurrencyController().inputCountryCode,
+                                  amount: CurrencyController().outputAmount,
+                                );
+                                inputAmountController.text =
+                                    CurrencyController().inputAmount;
+                                outputAmountController.text =
+                                    CurrencyController().outputAmount;
+                              },
+                              icon: Icon(Icons.swap_vert),
                             ),
                             SizedBox(height: 16),
-                            TextFormField(
-                              controller: outputAmountController,
-                              //initialValue: initialOutputAmount,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Số tiền (${CurrencyController().outputCurrency})',
-                                suffixText: CurrencyController().outputCurrency,
-                                border: OutlineInputBorder(),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 14,
                               ),
-                              readOnly: true,
+                              //decoration: BoxDecoration(
+                              //  border: Border.all(
+                              //    color: Theme.of(context).colorScheme.outline,
+                              //  ),
+                              //  borderRadius: BorderRadius.circular(4),
+                              //),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    CurrencyController().outputAmount,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  Text(
+                                    CurrencyController().outputCurrency,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
                       SizedBox(height: 32),
-                      ElevatedButton(onPressed: (){
-                        CurrencyController().update(amount: inputAmountController.text);
-                        outputAmountController.text = CurrencyController().outputAmount;
-                      }, child: Text('chuyển đổi')),
+                      ElevatedButton(
+                        onPressed: () {
+                          CurrencyController().update(
+                            amount: inputAmountController.text,
+                          );
+                          outputAmountController.text =
+                              CurrencyController().outputAmount;
+                        },
+                        child: Text('chuyển đổi'),
+                      ),
                       SizedBox(height: 32),
-                
                     ],
                   ),
                 ),
               );
-            }
+            },
           );
-        }
+        },
       ),
 
       bottomNavigationBar: Container(
@@ -255,29 +360,62 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            TextButton(onPressed: (){}, child: Row(
-              children: [
-                Icon(Icons.home, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                SizedBox(width: 8),
-                Text('Home', style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer)),
-              ],
-            )),
-            TextButton(onPressed: (){}, child: Row(
-              children: [
-                Icon(Icons.settings, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                SizedBox(width: 8),
-                Text('Settings', style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer)),
-              ],
-            )),
-            TextButton(onPressed: (){}, child: Row(
-              children: [
-                Icon(Icons.info, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                SizedBox(width: 8),
-                Text('About', style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer)),
-              ],
-            ),)
+            TextButton(
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.home,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Home',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.settings,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'About',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
-        )
+        ),
       ),
 
       floatingActionButton: FloatingActionButton(

@@ -14,22 +14,24 @@ class CurrencyController extends ChangeNotifier {
   String outputAmount = '23 000';
   String inputCountryCode = 'us';
   String outputCountryCode = 'vn';
+  String inputCurrencyRate = '1';
+  String outputCurrencyRate = '23 000';
 
   double _parseAmount(String value) {
-    String normalized = value.trim().replaceAll(' ', '');
+    //String normalized = value.trim().replaceAll(' ', '').replaceAll('.', '');
+    //
+    //if (normalized.contains(',')) {
+    //  // Treat comma as decimal separator and dot as thousands separator.
+    //  normalized = normalized.replaceAll('.', '').replaceAll(',', '.');
+    //} else {
+    //  // If dots are used only as grouped thousands separators, remove them.
+    //  final groupedThousandsRegex = RegExp(r'^\d{1,3}(\.\d{3})+$');
+    //  if (groupedThousandsRegex.hasMatch(normalized)) {
+    //    normalized = normalized.replaceAll('.', '');
+    //  }
+    //}
 
-    if (normalized.contains(',')) {
-      // Treat comma as decimal separator and dot as thousands separator.
-      normalized = normalized.replaceAll('.', '').replaceAll(',', '.');
-    } else {
-      // If dots are used only as grouped thousands separators, remove them.
-      final groupedThousandsRegex = RegExp(r'^\d{1,3}(\.\d{3})+$');
-      if (groupedThousandsRegex.hasMatch(normalized)) {
-        normalized = normalized.replaceAll('.', '');
-      }
-    }
-
-    return double.tryParse(normalized) ?? 0;
+    return double.tryParse(value) ?? 0;
   }
 
   String _formatAmount(double value) {
@@ -54,11 +56,16 @@ class CurrencyController extends ChangeNotifier {
       return '$sign${grouped.toString()}';
     }
 
-    return '$sign${grouped.toString()},$decimalPart';
+    return '$sign${grouped.toString()}.$decimalPart';
   }
 
-
-  void update({String? inputCurrency, String? outputCurrency, String? amount, String? inputCountryCode, String? outputCountryCode}) {
+  void update({
+    String? inputCurrency,
+    String? outputCurrency,
+    String? amount,
+    String? inputCountryCode,
+    String? outputCountryCode,
+  }) {
     if (inputCurrency != null) {
       this.inputCurrency = inputCurrency;
     }
@@ -69,7 +76,7 @@ class CurrencyController extends ChangeNotifier {
       this.inputCountryCode = inputCountryCode;
     }
     if (outputCountryCode != null) {
-      this.outputCountryCode = outputCountryCode; 
+      this.outputCountryCode = outputCountryCode;
     }
 
     if (amount != null) {
@@ -77,16 +84,17 @@ class CurrencyController extends ChangeNotifier {
     }
 
     double? inputRate = Currencies().rateOf(this.inputCurrency);
-    double? outputRate = Currencies().rateOf(this.outputCurrency); 
+    double? outputRate = Currencies().rateOf(this.outputCurrency);
     if (inputRate != null && outputRate != null) {
       double inputAmountDouble = _parseAmount(inputAmount);
       double outputAmountDouble = inputAmountDouble * (outputRate / inputRate);
       outputAmount = _formatAmount(outputAmountDouble);
+      inputCurrencyRate = '1';
+      outputCurrencyRate = _formatAmount(outputRate / inputRate);
     } else {
       outputAmount = '0';
     }
 
     notifyListeners();
   }
-
 }
