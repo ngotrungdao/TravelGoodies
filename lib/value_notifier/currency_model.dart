@@ -16,6 +16,8 @@ class CurrencyController extends ChangeNotifier {
   String outputCountryCode = 'vn';
   String inputCurrencyRate = '1';
   String outputCurrencyRate = '23 000';
+  String inputCurrencySymbol = r'$';
+  String outputCurrencySymbol = '₫';
 
   double _parseAmount(String value) {
     //String normalized = value.trim().replaceAll(' ', '').replaceAll('.', '');
@@ -93,6 +95,15 @@ class CurrencyController extends ChangeNotifier {
       outputCurrencyRate = _formatAmount(outputRate / inputRate);
     } else {
       outputAmount = '0';
+    }
+
+    for (final currency in Currencies().currencies) {
+      if (currency.code.toUpperCase() == this.inputCurrency.toUpperCase()) {
+        inputCurrencySymbol = currency.symbol;
+      }
+      if (currency.code.toUpperCase() == this.outputCurrency.toUpperCase()) {
+        outputCurrencySymbol = currency.symbol;
+      }
     }
 
     notifyListeners();
