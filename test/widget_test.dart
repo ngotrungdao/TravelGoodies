@@ -7,7 +7,7 @@ void main() {
   testWidgets('Currency converter shell renders', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
-    expect(find.text('Currency Converter'), findsOneWidget);
+    expect(find.text('đổi tiền'), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }

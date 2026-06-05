@@ -3,7 +3,11 @@ import 'package:money_exchange/exchange_board/countries/countries.dart';
 import 'package:money_exchange/exchange_board/currencies/currencies.dart';
 
 class _CurrencyChoiceItem {
-  const _CurrencyChoiceItem({required this.code, required this.name, required this.alpha2Code});
+  const _CurrencyChoiceItem({
+    required this.code,
+    required this.name,
+    required this.alpha2Code,
+  });
 
   final String code;
   final String name;
@@ -34,13 +38,17 @@ List<_CurrencyChoiceItem> _getChoiceItems() {
   return items;
 }
 
+List<_CurrencyChoiceItem> _allItems = [];
+
 Future<List<String>?> showCurrencyChoiceDialog(BuildContext context) {
-  final List<_CurrencyChoiceItem> allItems = _getChoiceItems();
+  if (_allItems.isEmpty) {
+    _allItems = _getChoiceItems();
+  }
   final Map<String, _CurrencyChoiceItem> itemsByCode = {
-    for (final item in allItems) item.alpha2Code: item,
+    for (final item in _allItems) item.alpha2Code: item,
   };
   final listChangeNotifier = ValueNotifier<List<String>>(
-    allItems.map((item) => item.alpha2Code).toList(growable: false),
+    _allItems.map((item) => item.alpha2Code).toList(growable: false),
   );
   return showDialog(
     context: context,
@@ -60,13 +68,13 @@ Future<List<String>?> showCurrencyChoiceDialog(BuildContext context) {
                 onChanged: (value) {
                   final query = value.trim().toLowerCase();
                   if (query.isEmpty) {
-                    listChangeNotifier.value = allItems
+                    listChangeNotifier.value = _allItems
                         .map((item) => item.alpha2Code)
                         .toList(growable: false);
                     return;
                   }
 
-                  listChangeNotifier.value = allItems
+                  listChangeNotifier.value = _allItems
                       .where((item) {
                         return item.code.toLowerCase().contains(query) ||
                             item.name.toLowerCase().contains(query);
@@ -99,12 +107,18 @@ Future<List<String>?> showCurrencyChoiceDialog(BuildContext context) {
                             children: [
                               SizedBox(width: 50, child: Text(item.code)),
                               Expanded(
-                                child: Text(item.name, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right),
+                                child: Text(
+                                  item.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.right,
+                                ),
                               ),
                             ],
                           ),
                           onTap: () {
-                            Navigator.of(context).pop(<String>[item.alpha2Code, item.code]);
+                            Navigator.of(
+                              context,
+                            ).pop(<String>[item.alpha2Code, item.code]);
                           },
                         );
                       },
